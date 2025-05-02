@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 URL = "https://proverenevozy.toyota.cz/nabidky/brand/toyota/model/verso"
 LI_NAMES = ["Rok výroby", "Najeto", "Palivo", "Objem", "Převodovka", "Počet sedadel"]  # List of <li> names to search for
+LI_NAMES_ALL = LI_NAMES + ["Price", "link"]  # List of <li> names to search for including Price
 
 
 def fetch_and_parse(url):
@@ -23,19 +24,35 @@ def fetch_and_parse(url):
                     # extract value from the span inside the <li>
                     ul_dict[name] = li.find("span").text.strip()
         if ul_dict:
+            # find parent div of parent div to the <ul>
+            parent_div = ul.find_parent("div").find_parent("div")
+            # find div with class "o-bx__price" in the parent div
+            price_div = parent_div.find("div", class_="o-bx__price")
+            # find the first strong element in the price div
+            price = price_div.find("strong").text.strip() if price_div else "N/A"
+
+            actions_div = parent_div.find("div", class_="o-bx__actions")
+            # find button in actions_div
+            button = actions_div.find("button")
+            # extracts attribute of the "data-used_car_id" button
+            car_id = button["data-used_car_id"] if button else "N/A"
+
+            ul_dict["Price"] = price
+            ul_dict["link"] = f"[{car_id}](https://proverenevozy.toyota.cz/nabidka/toyota-verso/{car_id})"
+
             cars.append(ul_dict)
     print_table(cars)
 
 
 def print_table(cars):
     # Print the header
-    header = "| " + " | ".join(LI_NAMES) + " |"
+    header = "| " + " | ".join(LI_NAMES_ALL) + " |"
     print(header)
     print("|" + "-" * (len(header) - 2) + "|")
 
     # Print each car's details
     for car in cars:
-        row = "| " + " | ".join(car.get(name, "") for name in LI_NAMES) + " |"
+        row = "| " + " | ".join(car.get(name, "") for name in LI_NAMES_ALL) + " |"
         print(row)
         print("|" + "-" * (len(row) - 2) + "|")
 
