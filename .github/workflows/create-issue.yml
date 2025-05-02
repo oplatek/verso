@@ -2,7 +2,7 @@ name: Create Issue with Current Time in Markdown
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '44 * * * *' # Runs every hour at 44 minutes
 
 jobs:
   create-issue:
