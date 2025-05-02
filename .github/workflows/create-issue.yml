@@ -2,7 +2,8 @@ name: Create Issue with Current Time in Markdown
 
 on:
   schedule:
-    - cron: '05 * * * *'
+    # disable the cron job for testing
+    - cron: '0 0 0 0 0' # Runs every hour at 44 minutes
 
 jobs:
   create-issue:
@@ -11,30 +12,3 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-
-      - name: Run Python Script to Get Dates
-        id: get-updates 
-        run: |
-          python3 script/overene_vozy.py > cars.md
-
-      - name: Read Markdown Content
-        id: read-dates
-        run: |
-          {
-            echo "content<<EOF"
-            base64 dates.md
-            echo "EOF"
-          } >> $GITHUB_ENV
-
-      - name: Create GitHub Issue
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const content = Buffer.from(process.env.content, 'base64').toString('utf-8');
-            const { data: issue } = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Current Time in Markdown Format`,
-              body: content
-            });
-            console.log(`Created issue: ${issue.html_url}`);
