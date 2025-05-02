@@ -15,17 +15,22 @@ jobs:
       - name: Run Python Script to Get Dates
         id: get-dates
         run: |
-          echo content="$(python3 script/overene_vozy.py)" >> $GITHUB_ENV
+          python3 script/date.py > dates.md
+
+      - name: Read Markdown Content
+        id: read-dates
+        run: |
+          echo "content=$(cat dates.md | base64)" >> $GITHUB_ENV
 
       - name: Create GitHub Issue
         uses: actions/github-script@v6
         with:
           script: |
-            const content = process.env.content;
+            const content = Buffer.from(process.env.content, 'base64').toString('utf-8');
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `Verso state`,
+              title: `Current Time in Markdown Format`,
               body: content
             });
             console.log(`Created issue: ${issue.html_url}`);
