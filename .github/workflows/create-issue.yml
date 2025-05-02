@@ -2,7 +2,7 @@ name: Create Issue with Current Time in Markdown
 
 on:
   schedule:
-    - cron: '44 * * * *' # Runs every hour at 44 minutes
+    - cron: '56 * * * *' # Runs every hour at 44 minutes
 
 jobs:
   create-issue:
@@ -15,7 +15,7 @@ jobs:
       - name: Run Python Script to Get Dates
         id: get-dates
         run: |
-          echo content=$(python3 script/date.py)" >> $GITHUB_ENV
+          echo content="$(python3 script/date.py)" >> $GITHUB_ENV
 
       - name: Create GitHub Issue
         uses: actions/github-script@v6
